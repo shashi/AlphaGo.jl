@@ -10,15 +10,15 @@ end
 
 #TODO: Model save path
 
-function save_model(nn::NeuralNet)
+function save_model(nn::NeuralNet, suffix="")
   # checking for path to save
-  path = joinpath(Pkg.dir("AlphaGo"), "models")
+  path = joinpath(dirname(@__DIR__), "models")
   if !isdir(path) mkdir(path) end
 
   bn,value, policy = cpu.((nn.base_net, nn.value, nn.policy))
-  @save path * "/agz_base.bson" bn
-  @save path * "/agz_value.bson" value
-  @save path * "/agz_policy.bson" policy
+  @save path * "/agz_base$suffix.bson" bn
+  @save path * "/agz_value$suffix.bson" value
+  @save path * "/agz_policy$suffix.bson" policy
 
   # saving weights
   # checking for path to save weights
@@ -29,9 +29,9 @@ function save_model(nn::NeuralNet)
   val_weights = cpu.(Tracker.data.(params(value)))
   pol_weights = cpu.(Tracker.data.(params(policy)))
 
-  @save path * "/agz_base.bson" bn_weights
-  @save path * "/agz_value.bson" val_weights
-  @save path * "/agz_policy.bson" pol_weights
+  @save path * "/agz_base$suffix.bson" bn_weights
+  @save path * "/agz_value$suffix.bson" val_weights
+  @save path * "/agz_policy$suffix.bson" pol_weights
 end
 
 
@@ -86,7 +86,7 @@ function train(env::GameEnv; num_games::Int = 25000, memory_size::Int = 500000,
   # end
         
     if i % ckp_freq == 0
-      save_model(cur_nn)
+        save_model(cur_nn, string("-", div(i, ckp_freq)))
       print("Model saved. ")
     end
   end
