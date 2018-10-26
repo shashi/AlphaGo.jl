@@ -13,18 +13,18 @@ mutable struct NeuralNet
   function NeuralNet(env::T; base_net = nothing, value = nothing, policy = nothing,
                           tower_height::Int = 19) where T <: GameEnv
     if base_net == nothing
-      res_block() = ResidualBlock([256,256,256], [3,3], [1,1], [1,1])
+      res_block() = ResidualBlock([48,48,48], [3,3], [1,1], [1,1])
       # 19 residual blocks
       tower = [res_block() for i = 1:tower_height]
-      base_net = Chain(Conv((3,3), 2env.planes+1=>256, pad=(1,1)), BatchNorm(256, relu),
+      base_net = Chain(Conv((3,3), 2env.planes+1=>48, pad=(1,1)), BatchNorm(48, relu),
                         tower...) |> gpu
     end
     if value == nothing
-      value = Chain(Conv((1,1), 256=>1), BatchNorm(1, relu), x->reshape(x, :, size(x, 4)),
-                    Dense(env.N*env.N, 256, relu), Dense(256, 1, tanh)) |> gpu
+      value = Chain(Conv((1,1), 48=>1), BatchNorm(1, relu), x->reshape(x, :, size(x, 4)),
+                    Dense(env.N*env.N, 48, relu), Dense(48, 1, tanh)) |> gpu
     end
     if policy == nothing
-      policy = Chain(Conv((1,1), 256=>2), BatchNorm(2, relu), x->reshape(x, :, size(x, 4)),
+      policy = Chain(Conv((1,1), 48=>2), BatchNorm(2, relu), x->reshape(x, :, size(x, 4)),
                       Dense(2env.N*env.N, env.action_space), x -> softmax(x)) |> gpu
     end
 
