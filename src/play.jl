@@ -40,7 +40,7 @@ function play(env::GameEnv, nn = nothing; tower_height = 19, num_readouts = 800,
 
     if num_moves % 2 == mode
       print("Your turn: ")
-      move = readline(STDIN)
+      move = readline(stdin)
       try
       	move = from_kgs(move, az.env)
       catch
